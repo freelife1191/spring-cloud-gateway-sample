@@ -3,6 +3,8 @@ rootProject.name = "spring-cloud-gateway-sample"
 include("cart-service")
 include("order-service")
 include("gateway-server")
+include("eureka-server")
+include("config-server")
 
 pluginManagement {
     val pluginVersions = mapOf(
@@ -20,5 +22,4 @@ pluginManagement {
         }
     }
 }
-include("eureka-server")
-include("config-server")
+

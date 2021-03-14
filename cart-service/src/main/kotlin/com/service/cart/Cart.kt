@@ -2,6 +2,8 @@ package com.service.cart
 
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
+import org.springframework.cloud.netflix.ribbon.RibbonClient
+import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import org.springframework.data.jpa.repository.JpaRepository

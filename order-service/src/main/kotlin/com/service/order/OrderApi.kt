@@ -2,6 +2,8 @@ package com.service.order
 
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
+import org.springframework.cloud.netflix.ribbon.RibbonClient
+import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -61,17 +63,17 @@ class Order(
 
 interface OrderRepository : JpaRepository<Order, Long>
 
-//@FeignClient("cart-service")
-//@RibbonClient("cart-service")
-//interface CartClient {
-//
-//    @GetMapping("/carts/{id}")
-//    fun getCart(@PathVariable id: Long): CartResponse
-//
-//    data class CartResponse(
-//        val productId: Long
-//    )
-//}
+@FeignClient("cart-service")
+@RibbonClient("cart-service")
+interface CartClient {
+
+   @GetMapping("/carts/{id}")
+   fun getCart(@PathVariable id: Long): CartResponse
+
+   data class CartResponse(
+       val productId: Long
+   )
+}
 
 
 @EntityListeners(value = [AuditingEntityListener::class])
