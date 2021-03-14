@@ -1,0 +1,28 @@
+GET {{gateway-server}}/order/orders?page=0&size=5
+Accept: application/json
+
+###
+
+GET {{gateway-server}}/order/orders/carts/1
+Accept: application/json
+
+###
+
+GET {{gateway-server}}/order/orders/carts/1/123
+Accept: application/json
+
+###
+
+GET {{gateway-server}}/cart/carts?page=0&size=5
+Accept: application/json
+
+###
+
+GET {{order-service}}/orders?page=0&size=5
+Accept: application/json
+
+###
+
+GET {{cart-service}}/carts
+
+###

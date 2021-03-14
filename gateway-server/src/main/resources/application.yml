@@ -1,0 +1,87 @@
+server:
+  port: 5555
+
+spring:
+  cloud:
+    gateway:
+      # 글로벌 타임아웃 설정
+      httpclient:
+        # 커넥션 타임아웃
+        connect-timeout: 10000
+        # 응답 타임아웃
+        response-timeout: 10s
+      discovery:
+        locator:
+          enabled: true
+  
+      routes:
+        # 해당 라우트의 고유 식별자
+        - id: order-service
+          # 해당 라우터의 주소
+          #uri: http://localhost:8181
+          uri: lb://order-service
+          # 해당 라우터의 조건을 작성, /order/**으로 시작하는 요청의 경우 해당 라우터로 요청을 보냄
+          predicates:
+            - Path=/order/**
+            # 특정 날짜 이후에 호출이 가능
+            - After=2021-03-14T13:35:00.126+09:00[Asia/Seoul]
+            # Befroe는 특정 날짜 이전 호출이 가능
+            #- Before=2021-03-15T19:25:19.126+09:00[Asia/Seoul]
+            # Between는 특정 날짜 사이에만 호출이 가능
+            #- Between=2021-03-14T00:00:00.000+09:00[Asia/Seoul], 2021-03-15T23:59:59.999+09:00[Asia/Seoul]
+            # grpup, weight를 기반으로 그룹별로 가중치를 계산
+            #- Weight=group-order, 7
+          filters:
+            # 해당 라우터의 필터로, RewritePath는 강제로 Patch를 다시 작성
+            # 요청이 오면 /order/를 제거하고 order-service를 호출
+            - RewritePath=/order/(?<path>.*),/$\{path}
+            # 재시도
+            - name: Retry
+              args:
+                # 재시도 횟수
+                retries: 3
+                # 재시도 HTTP 상태코드
+                statuses: INTERNAL_SERVER_ERROR
+                # 재시도 HTTP 상태 코드시리즈
+                #series: 5XX
+                # 재시도 HTTP 메서드
+                methods: GET
+                # 재시도 Exception
+                # exceptions: RuntimeException
+                # 재시도하는 시간텀 지정 firstBackoff * (factor ^ n) n번 반복
+                backoff:
+                  firstBackoff: 1000ms
+                  maxBackoff: 6000ms
+                  factor: 2
+                  basedOnPreviousValue: false
+          # 라우터별 타임아웃
+          metadata:
+            connect-timeout: 1000
+            response-timeout: 1000
+      
+        - id: cart-service
+          #uri: http://localhost:8181
+          uri: lb://cart-service
+          predicates:
+            - Path=/cart/**
+          filters:
+            - RewritePath=/order/(?<path>.*),/$\{path}
+        
+
+logging:
+  level:
+    root: info
+    reactor.netty.http.server.AccessLog: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+        - "info"
+        - "health"
+        - "gateway"
+        - "bus-refresh"
+  endpoint:
+    gateway:
+      enabled: true
